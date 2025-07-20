@@ -19,15 +19,15 @@ return new class extends Migration
             $table->string('customerName', 100)->nullable();
             $table->string('companyName', 100)->nullable();
             $table->string('phone', 100)->nullable();
-            $table->string('industry_id', 100)->nullable();
+            $table->string('industry', 100)->nullable();
             $table->string('description', 255)->nullable();
-            $table->string('responsiblePerson_id', 100)->nullable();
+            $table->string('responsiblePerson', 100)->nullable();
             $table->string('username', 100)->nullable();
             $table->dateTime('datetime')->nullable();
 
             $table->foreign('lead_serialNo')->references('serialNo')->on('leads')->onUpdate('cascade');
-            $table->foreign('industry_id')->references('id')->on('industries')->onUpdate('cascade');
-            $table->foreign('responsiblePerson_id')->references('id')->on('users')->onUpdate('cascade');
+            $table->foreign('industry')->references('Name')->on('industries')->onUpdate('cascade');
+            $table->foreign('responsiblePerson')->references('userName')->on('users')->onUpdate('cascade');
             $table->timestamps();
             $table->softDeletes();
         });

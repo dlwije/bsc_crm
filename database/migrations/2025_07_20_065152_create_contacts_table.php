@@ -21,13 +21,13 @@ return new class extends Migration
             $table->string('email', 100)->nullable();
             $table->string('reason', 255)->nullable();
             $table->string('description', 255)->nullable();
-            $table->string('responsiblePerson_id', 100)->nullable();
+            $table->string('responsiblePerson', 100)->nullable();
             $table->string('username', 100)->nullable();
             $table->dateTime('datetime')->nullable();
             $table->string('updateusername', 100)->nullable();
             $table->dateTime('updatedatetime')->nullable();
 
-            $table->foreign('responsiblePerson_id')->references('id')->on('users')->onUpdate('cascade');
+            $table->foreign('responsiblePerson')->references('userName')->on('users')->onUpdate('cascade');
             $table->timestamps();
             $table->softDeletes();
         });

@@ -8,8 +8,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
+use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
 {
@@ -17,7 +19,7 @@ class UserController extends Controller
     {
 
         try {
-            $query = User::select('id', 'first_name', 'last_name', 'display_name', 'email', 'phone', 'is_active', 'is_sys_user', 'updated_at');
+            $query = User::select('id', 'name', 'userName', 'Department', 'active', 'status', 'last_activity', 'last_ip','login_time', 'logged', 'branch', 'updated_at');
 
             return DataTables::of($query)
                 ->addColumn('action', function ($row) {
@@ -47,16 +49,11 @@ class UserController extends Controller
     {
         // Define the base validation rules
         $validationRules = [
-            'first_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users|regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/|max:255',
-            'password' => 'required|string|confirmed|min:5',
+            'name' => 'required|string|max:255',
+            'userName' => 'required|unique:users|max:255',
+            'password' => 'required|string|confirmed',
             'roles' => 'required'
         ];
-
-        // Add phone validation rule if phone is present and not empty
-        if ($request->has('phone') && !empty($request->input('phone'))) {
-            $validationRules['phone'] = 'nullable|string|regex:/^\+?[0-9]{10,14}$/';
-        }
 
         // Validate the request data
         $validator = Validator::make($request->all(), $validationRules);
@@ -70,22 +67,13 @@ class UserController extends Controller
         try {
             // Prepare user data
             $userData = [
-                'first_name' => $request->input('first_name'),
-                'email' => $request->input('email'),
+                'name' => $request->input('name') ?? null,
+                'userName' => $request->input('userName'),
+                'Department' => $request->input('Department') ?? null,
+                'branch' => $request->input('branch') ?? null,
                 'password' => bcrypt($request->input('password')), // Hash the password
-                'ip' => $request->ip(),
-                'is_sys_user' => 1,
+                'status' => $request->input('roles') ?? null,
             ];
-
-            // Add phone if it is not empty
-            if ($request->has('phone') && !empty($request->input('phone'))) {
-                $userData['phone'] = $request->input('phone');
-            }
-
-            // Check if last_name is not empty and add it to the array
-            if ($request->has('last_name') && !empty($request->input('last_name'))) {
-                $userData['last_name'] = $request->input('last_name');
-            }
 
             $user = User::create($userData);
             $user->syncRoles($request->input('roles'));
@@ -99,7 +87,7 @@ class UserController extends Controller
             return self::success($data, 'User '.__('messages.registered_successfully'), 201); // Use HTTP 201 for resource creation
         } catch (\Exception $e) {
             // Log the error and return a generic response
-            Log::error('User Registration Error:', ['error' => $e->getMessage()]);
+            Log::error('User Creation Error:', ['error' => $e->getMessage()]);
             DB::rollBack();
 
             return self::error(__('messages.something_went_wrong'), 500);
@@ -142,16 +130,11 @@ class UserController extends Controller
     {
         // Define the base validation rules
         $validationRules = [
-            'first_name' => 'required|string|max:255',
-            'email' => 'required|email|regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/|unique:users,email,'.$id,
-            'password' => 'nullable|string|confirmed|min:5',
+            'name' => 'required|string|max:255',
+            'userName' => 'required|email|unique:users,userName,'.$id,
+            'password' => 'nullable|string|confirmed',
             'roles' => 'required'
         ];
-
-        // Add phone validation rule if phone is present and not empty
-        if ($request->has('phone') && !empty($request->input('phone'))) {
-            $validationRules['phone'] = 'nullable|string|regex:/^\+?[0-9]{10,14}$/';
-        }
 
         // Validate the request data
         $validator = Validator::make($request->all(), $validationRules);
@@ -193,7 +176,7 @@ class UserController extends Controller
 
         // Validate the request data
         $validator = Validator::make($request->all(), [
-            'is_active' => 'required|boolean',
+            'active' => 'required|boolean',
         ]);
 
         // Check if validation fails
@@ -209,7 +192,7 @@ class UserController extends Controller
         }
 
         // Update the is_active status
-        $user->is_active = $request->is_active;
+        $user->active = $request->active;
         $user->save();
 
         return self::success($user, __('messages.user_status_updated'), 200);
@@ -220,12 +203,15 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        $resp = User::find($id)->delete();
-        if($resp){
-
-            return self::success('', 'User '.__('messages.deleted_successfully'), 204);
-        }else{
-
+        $resp = User::find($id);
+        if (!$resp) {
+            return self::error(__('messages.user_not_found'), 404);
+        }
+        try {
+            $resp->delete();
+            return self::success('', 'User '.__('messages.deleted_successfully'), 200);
+        }catch (\Exception $e) {
+            Log::error('User delete Error:', ['error' => $e]);
             return self::error(__('messages.something_went_wrong'), 500);
         }
     }
