@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('register', [AuthController::class, 'register'])->middleware('guest:api')->name('api.register');
 Route::post('login', [AuthController::class, 'login'])->middleware('guest:api');
 Route::get('refresh-token', [AuthController::class, 'refresh'])->middleware('auth:api');
+Route::get('logout', [AuthController::class, 'logout'])->middleware('auth:api');
 
 Route::middleware(['auth:api'])->group(function (){
     Route::apiResource('contacts', ContactController::class);
