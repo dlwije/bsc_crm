@@ -105,7 +105,7 @@ class ContactController extends Controller
             $contact = Contact::find($id);
 
             if(!$contact) {
-                return self::error('Role '.__('messages.notfound'), 404);
+                return self::error('Contact '.__('messages.notfound'), 404);
             }
 
             $contact->serialNo = $request->input('serialNo');
@@ -133,7 +133,7 @@ class ContactController extends Controller
         }catch (\Exception $e){
 
             // Log the error and return a generic response
-            Log::error('Role Update Error:', ['error' => $e]);
+            Log::error('Contact Update Error:', ['error' => $e]);
             DB::rollBack();
             return self::error(__('messages.something_went_wrong'), 500);
         }
@@ -147,7 +147,7 @@ class ContactController extends Controller
         }
         try {
             $resp->delete();
-            return self::success('', 'User '.__('messages.deleted_successfully'), 200);
+            return self::success('', 'Contact '.__('messages.deleted_successfully'), 200);
         }catch (\Exception $e) {
             Log::error('Contact delete Error:', ['error' => $e]);
             return self::error(__('messages.something_went_wrong'), 500);

@@ -16,28 +16,29 @@ class RoleController extends Controller
 {
     public function index()
     {
-        try {
-            $query = Role::query();
-
-            return DataTables::of($query)
-                ->editColumn('updated_at', function ($user) {
-                    return $user->updated_at->format('Y-m-d');
-                })
-                ->addIndexColumn()
-                ->addColumn('action', function ($row) {
-                    return '<button type="button" onclick="deleteConfirm(' . $row->id . ')" class="btn btn-danger btn-sm">Delete</button>';
-                })
-                ->rawColumns(['action'])
-                ->filterColumn('updated_at', function ($query, $keyword) {
-                    $query->whereRaw("DATE_FORMAT(updated_at, '%Y-%m-%d') like ?", ["%$keyword%"]);
-                })
-                ->removeColumn('guard_name', 'created_at')
-                ->make(true);
-        } catch (\Exception $e) {
-
-            Log::error('Role List Getting Error:',['error' => $e]);
-            return self::error(__('messages.something_went_wrong'), 500);
-        }
+        return self::success(Role::all(), 'success', 200);
+//        try {
+//            $query = Role::query();
+//
+//            return DataTables::of($query)
+//                ->editColumn('updated_at', function ($user) {
+//                    return $user->updated_at->format('Y-m-d');
+//                })
+//                ->addIndexColumn()
+//                ->addColumn('action', function ($row) {
+//                    return '<button type="button" onclick="deleteConfirm(' . $row->id . ')" class="btn btn-danger btn-sm">Delete</button>';
+//                })
+//                ->rawColumns(['action'])
+//                ->filterColumn('updated_at', function ($query, $keyword) {
+//                    $query->whereRaw("DATE_FORMAT(updated_at, '%Y-%m-%d') like ?", ["%$keyword%"]);
+//                })
+//                ->removeColumn('guard_name', 'created_at')
+//                ->make(true);
+//        } catch (\Exception $e) {
+//
+//            Log::error('Role List Getting Error:',['error' => $e]);
+//            return self::error(__('messages.something_went_wrong'), 500);
+//        }
     }
 
     /**

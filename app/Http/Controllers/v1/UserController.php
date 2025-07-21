@@ -17,29 +17,29 @@ class UserController extends Controller
 {
     public function index()
     {
-
-        try {
-            $query = User::select('id', 'name', 'userName', 'Department', 'active', 'status', 'last_activity', 'last_ip','login_time', 'logged', 'branch', 'updated_at');
-
-            return DataTables::of($query)
-                ->addColumn('action', function ($row) {
-                    return '<button type="button" onclick="{() => { setIsDeleteConfirmOpen(true); setDeletingId('.$row->id.'); }}" >Update Status</button>';
-                })
-                ->rawColumns(['action'])
-                ->editColumn('updated_at', function ($user) {
-                    return $user->updated_at->format('Y-m-d');
-                })
-                ->addIndexColumn()
-                ->filterColumn('updated_at', function ($query, $keyword) {
-                    $query->whereRaw("DATE_FORMAT(updated_at, '%Y-%m-%d') like ?", ["%$keyword%"]);
-                })
-                ->removeColumn('email_verified_at', 'created_at')
-                ->make(true);
-        } catch (\Exception $e) {
-
-            Log::error('User List Getting Error:',['error' => $e->getMessage()]);
-            return self::error(__('messages.something_went_wrong'), 500);
-        }
+        return self::success(User::all(), 'success', 200);
+//        try {
+//            $query = User::select('id', 'name', 'userName', 'Department', 'active', 'status', 'last_activity', 'last_ip','login_time', 'logged', 'branch', 'updated_at');
+//
+//            return DataTables::of($query)
+//                ->addColumn('action', function ($row) {
+//                    return '<button type="button" onclick="{() => { setIsDeleteConfirmOpen(true); setDeletingId('.$row->id.'); }}" >Update Status</button>';
+//                })
+//                ->rawColumns(['action'])
+//                ->editColumn('updated_at', function ($user) {
+//                    return $user->updated_at->format('Y-m-d');
+//                })
+//                ->addIndexColumn()
+//                ->filterColumn('updated_at', function ($query, $keyword) {
+//                    $query->whereRaw("DATE_FORMAT(updated_at, '%Y-%m-%d') like ?", ["%$keyword%"]);
+//                })
+//                ->removeColumn('email_verified_at', 'created_at')
+//                ->make(true);
+//        } catch (\Exception $e) {
+//
+//            Log::error('User List Getting Error:',['error' => $e->getMessage()]);
+//            return self::error(__('messages.something_went_wrong'), 500);
+//        }
     }
 
     /**
