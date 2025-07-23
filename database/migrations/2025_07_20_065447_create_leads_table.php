@@ -31,7 +31,7 @@ return new class extends Migration
             $table->string('updatedatetime', 100)->nullable();
 
             $table->foreign('industry')->references('Name')->on('industries')->onUpdate('cascade');
-            $table->foreign('leadSource')->references('Name')->on('inquiry_source')->onUpdate('cascade');
+//            $table->foreign('leadSource')->references('Name')->on('inquiry_source')->onUpdate('cascade');
             $table->foreign('leadStatus')->references('Name')->on('lead_statuses')->onUpdate('cascade');
             $table->foreign('product')->references('name')->on('products')->onUpdate('cascade');
             $table->foreign('responsiblePerson')->references('userName')->on('users')->onUpdate('cascade');
